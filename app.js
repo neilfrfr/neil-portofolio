@@ -42,7 +42,7 @@ const googleLoginBtn = document.getElementById("googleLoginBtn");
 // for a clear error message — the real enforcement is in your Firestore
 // security rules (see README), since a client-side check alone can't stop
 // someone from writing to the database directly.
-const ADMIN_EMAIL = "neilfrancisespinosa@gmail.com";
+const ADMIN_EMAILS = ["neilfrancis736@gmail.com", "neilfrancis.espinosa@cvsu.edu.ph"];
 
 const recordModal = document.getElementById("recordModal");
 const recordForm = document.getElementById("recordForm");
@@ -112,7 +112,7 @@ googleLoginBtn.addEventListener("click", async () => {
   try {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
-    if (result.user.email !== ADMIN_EMAIL) {
+    if (!ADMIN_EMAILS.includes(result.user.email)) {
       await signOut(auth);
       loginError.textContent = "That Google account isn't authorized for admin access.";
       loginError.classList.add("active");
