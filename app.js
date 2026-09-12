@@ -1,8 +1,11 @@
 import { firebaseConfig } from "./firebase-config.js";
+import { cloudinaryConfig } from "./cloudinary-config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
   signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -16,19 +19,11 @@ import {
   onSnapshot,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  deleteObject
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-// ---------- Firebase setup ----------
+// ---------- Firebase setup (Auth + Firestore only — no Storage, no billing needed) ----------
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
 const recordsCol = collection(db, "records");
 
 // ---------- Local state ----------
@@ -41,6 +36,13 @@ const adminNavBtn = document.getElementById("adminNavBtn");
 const loginModal = document.getElementById("loginModal");
 const loginForm = document.getElementById("loginForm");
 const loginError = document.getElementById("loginError");
+const googleLoginBtn = document.getElementById("googleLoginBtn");
+
+// Only this address is allowed to act as admin. This is a convenience check
+// for a clear error message — the real enforcement is in your Firestore
+// security rules (see README), since a client-side check alone can't stop
+// someone from writing to the database directly.
+const ADMIN_EMAIL = "neilfrancis.espinosa@cvsu.edu.ph";
 
 const recordModal = document.getElementById("recordModal");
 const recordForm = document.getElementById("recordForm");
@@ -102,6 +104,27 @@ adminNavBtn.addEventListener("click", async () => {
     loginError.classList.remove("active");
     loginForm.reset();
     openModal(loginModal);
+  }
+});
+
+googleLoginBtn.addEventListener("click", async () => {
+  loginError.classList.remove("active");
+  try {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    if (result.user.email !== ADMIN_EMAIL) {
+      await signOut(auth);
+      loginError.textContent = "That Google account isn't authorized for admin access.";
+      loginError.classList.add("active");
+      return;
+    }
+    closeModal(loginModal);
+    showToast("Logged in as admin.");
+  } catch (err) {
+    if (err.code !== "auth/popup-closed-by-user") {
+      loginError.textContent = "Couldn't sign in with Google.";
+      loginError.classList.add("active");
+    }
   }
 });
 
@@ -225,6 +248,24 @@ function escapeAttr(str) {
 }
 
 // ================================================================
+// Cloudinary upload (unsigned, no backend, no billing card)
+// ================================================================
+async function uploadToCloudinary(file) {
+  const url = `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/auto/upload`;
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", cloudinaryConfig.uploadPreset);
+
+  const res = await fetch(url, { method: "POST", body: formData });
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(errBody.error?.message || "Upload failed");
+  }
+  const data = await res.json();
+  return { url: data.secure_url, publicId: data.public_id };
+}
+
+// ================================================================
 // Add / edit record
 // ================================================================
 document.querySelectorAll(".add-record-btn").forEach((btn) => {
@@ -249,7 +290,7 @@ function openRecordModal(record) {
   document.getElementById("recordId").value = record.id || "";
   document.getElementById("recordCategory").value = record.category;
   document.getElementById("recordExistingFileURL").value = record.fileURL || "";
-  document.getElementById("recordExistingFilePath").value = record.filePath || "";
+  document.getElementById("recordExistingFilePath").value = record.publicId || "";
   document.getElementById("recordTitle").value = record.title || "";
   document.getElementById("recordDesc").value = record.description || "";
   document.getElementById("recordDate").value = record.date || "";
@@ -278,33 +319,30 @@ recordForm.addEventListener("submit", async (e) => {
     const date = document.getElementById("recordDate").value;
     const fileInput = document.getElementById("recordFile");
     const existingFileURL = document.getElementById("recordExistingFileURL").value;
-    const existingFilePath = document.getElementById("recordExistingFilePath").value;
+    const existingPublicId = document.getElementById("recordExistingFilePath").value;
 
     let fileURL = existingFileURL || null;
-    let filePath = existingFilePath || null;
+    let publicId = existingPublicId || null;
     let fileName = null;
 
     const file = fileInput.files[0];
     if (file) {
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const path = `uploads/${category}/${Date.now()}_${safeName}`;
-      const storageRef = ref(storage, path);
-      await uploadBytes(storageRef, file);
-      fileURL = await getDownloadURL(storageRef);
-      filePath = path;
+      recordSubmitBtn.textContent = "Uploading file…";
+      const uploaded = await uploadToCloudinary(file);
+      fileURL = uploaded.url;
+      publicId = uploaded.publicId;
       fileName = file.name;
-
-      // Clean up the old file once the new one is safely uploaded
-      if (id && existingFilePath) {
-        deleteObject(ref(storage, existingFilePath)).catch(() => {});
-      }
+      recordSubmitBtn.textContent = "Saving…";
+      // Note: the previous file (if any) is left in Cloudinary rather than
+      // deleted, since safely deleting Cloudinary assets from the browser
+      // needs a signed request. Free tier storage is generous enough that
+      // this is fine for a personal portfolio's worth of quizzes.
     } else if (id) {
-      // keep existing file's display name if we didn't touch it
       const existing = allRecords.find((r) => r.id === id);
       fileName = existing ? existing.fileName : null;
     }
 
-    const payload = { category, title, description, date, fileURL, filePath, fileName };
+    const payload = { category, title, description, date, fileURL, publicId, fileName };
 
     if (id) {
       await updateDoc(doc(db, "records", id), payload);
@@ -333,9 +371,6 @@ async function handleDelete(id) {
 
   try {
     await deleteDoc(doc(db, "records", id));
-    if (record.filePath) {
-      deleteObject(ref(storage, record.filePath)).catch(() => {});
-    }
     showToast("Item deleted.");
   } catch (err) {
     console.error(err);
