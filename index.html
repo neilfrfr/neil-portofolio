@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Portfolio | Neil Espinosa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav>
+        <div class="logo">NE.</div>
+        <ul class="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#directory">Directory</a></li>
+            <li><a href="#education">Education</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><button id="adminNavBtn" class="nav-admin-btn" type="button">Admin</button></li>
+        </ul>
+    </nav>
+
+    <section id="hero">
+        <div class="hero-content">
+            <span class="hero-greeting">Hi, my name is</span>
+            <h1 class="hero-name">Neil Espinosa</h1>
+            <h2 class="hero-tagline">Computer Science Student <br>& Aspiring Software Engineer.</h2>
+            <p class="hero-desc">I am a passionate tech student specializing in building exceptional digital experiences. Currently, I'm focused on learning full-stack development and solving complex problems with elegant code.</p>
+            <a href="#contact" class="btn">Get In Touch</a>
+        </div>
+    </section>
+
+    <section id="about" class="reveal">
+        <h2>About Me</h2>
+        <div class="about-text">
+            <p>Hello! I enjoy creating things that live on the internet. My interest in software development started back in high school when I decided to try editing custom Tumblr themes — turns out hacking together HTML & CSS taught me a lot about logic and problem-solving!</p>
+            <br>
+            <p>Fast-forward to today, and I've had the privilege of studying Computer Science at an advanced level. My main focus these days is building accessible, inclusive products and digital experiences for a variety of users. I am a continuous learner, always exploring new frameworks, languages, and technologies to optimize my workflow.</p>
+        </div>
+    </section>
+
+    <section id="directory" class="reveal">
+        <div class="directory-header">
+            <h2>Academic Directory</h2>
+        </div>
+
+        <div class="tabs-container">
+            <button class="tab-btn active" data-category="activities" type="button">Activities</button>
+            <button class="tab-btn" data-category="short-quiz" type="button">Short Quizzes</button>
+            <button class="tab-btn" data-category="long-quiz" type="button">Long Quizzes</button>
+        </div>
+
+        <div id="activities-tab" class="tab-content active" data-category="activities">
+            <div class="tab-content-header">
+                <div>
+                    <h3>Activities</h3>
+                    <p>Hands-on coursework, laboratory outputs, and coding assignments.</p>
+                </div>
+                <button class="btn btn-small admin-only add-record-btn" type="button" data-category="activities" style="display:none;">+ Add Activity</button>
+            </div>
+            <div class="record-list" data-list="activities">
+                <p class="loading-state">Loading…</p>
+            </div>
+        </div>
+
+        <div id="short-quiz-tab" class="tab-content" data-category="short-quiz">
+            <div class="tab-content-header">
+                <div>
+                    <h3>Short Quizzes</h3>
+                    <p>Regular assessments covering foundational topics and syntax.</p>
+                </div>
+                <button class="btn btn-small admin-only add-record-btn" type="button" data-category="short-quiz" style="display:none;">+ Add Short Quiz</button>
+            </div>
+            <div class="record-list" data-list="short-quiz">
+                <p class="loading-state">Loading…</p>
+            </div>
+        </div>
+
+        <div id="long-quiz-tab" class="tab-content" data-category="long-quiz">
+            <div class="tab-content-header">
+                <div>
+                    <h3>Long Quizzes</h3>
+                    <p>Comprehensive departmental exams and major assessments.</p>
+                </div>
+                <button class="btn btn-small admin-only add-record-btn" type="button" data-category="long-quiz" style="display:none;">+ Add Long Quiz</button>
+            </div>
+            <div class="record-list" data-list="long-quiz">
+                <p class="loading-state">Loading…</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="education" class="reveal">
+        <h2>Education</h2>
+        <div class="education-item">
+            <div class="edu-header">
+                <div>
+                    <h3 class="edu-degree">Bachelor of Science in Computer Science</h3>
+                    <div class="edu-school">Cavite State University - Silang</div>
+                </div>
+                <div class="edu-year">2024 — Present (Expected 2028)</div>
+            </div>
+            <p class="edu-coursework">
+                <span>Relevant Coursework:</span> Data Structures & Algorithms, Operating Systems, Database Management Systems, Software Engineering, Web Development, Discrete Mathematics.
+            </p>
+        </div>
+    </section>
+
+    <footer id="contact" class="reveal">
+        <div class="footer-cta">
+            <h2>What's Next?</h2>
+            <p>I'm currently looking for new internship opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!</p>
+            <a href="mailto:neilfrancisespinosa@gmail.com" class="btn">Say Hello</a>
+        </div>
+        <div class="social-links">
+            <a href="https://www.github.com/neilfrfr" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="https://www.linkedin.com/in/neil-francis-espinosa-67135435b/" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a href="mailto:neilfrancisespinosa@gmail.com">Email</a>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2026 Neil Espinosa. Built from scratch.</p>
+        </div>
+    </footer>
+
+    <!-- Login modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            <button class="modal-close" type="button" data-close-modal="loginModal">&times;</button>
+            <h3>Admin login</h3>
+            <p class="modal-subtitle">Sign in to add, edit, or remove directory items.</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required autocomplete="current-password">
+                </div>
+                <p class="form-error" id="loginError"></p>
+                <div class="form-actions">
+                    <button type="submit" class="btn">Log in</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add / edit record modal -->
+    <div class="modal-overlay" id="recordModal">
+        <div class="modal-box">
+            <button class="modal-close" type="button" data-close-modal="recordModal">&times;</button>
+            <h3 id="recordModalTitle">Add item</h3>
+            <p class="modal-subtitle" id="recordModalSubtitle">This will appear in the directory once saved.</p>
+            <form id="recordForm">
+                <input type="hidden" id="recordId">
+                <input type="hidden" id="recordCategory">
+                <input type="hidden" id="recordExistingFileURL">
+                <input type="hidden" id="recordExistingFilePath">
+                <div class="form-group">
+                    <label for="recordTitle">Title</label>
+                    <input type="text" id="recordTitle" placeholder="e.g. Activity 4: Recursive Functions" required>
+                </div>
+                <div class="form-group">
+                    <label for="recordDesc">Description (optional)</label>
+                    <textarea id="recordDesc" placeholder="Short notes about this item"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="recordDate">Date</label>
+                    <input type="date" id="recordDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="recordFile">File (PDF or image, optional)</label>
+                    <input type="file" id="recordFile" accept=".pdf,.jpg,.jpeg,.png,.webp">
+                    <p class="current-file-note" id="currentFileNote"></p>
+                </div>
+                <p class="form-error" id="recordError"></p>
+                <div class="form-actions">
+                    <button type="submit" class="btn" id="recordSubmitBtn">Save item</button>
+                    <button type="button" class="btn btn-ghost" data-close-modal="recordModal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script type="module" src="app.js"></script>
+    <script>
+        // Scroll reveal (unrelated to Firebase, kept from the original design)
+        document.addEventListener('DOMContentLoaded', () => {
+            const reveals = document.querySelectorAll('.reveal');
+            const revealOnScroll = () => {
+                const windowHeight = window.innerHeight;
+                const elementVisible = 150;
+                reveals.forEach((reveal) => {
+                    const elementTop = reveal.getBoundingClientRect().top;
+                    if (elementTop < windowHeight - elementVisible) {
+                        reveal.classList.add('active');
+                    }
+                });
+            };
+            window.addEventListener('scroll', revealOnScroll);
+            revealOnScroll();
+        });
+    </script>
+</body>
+</html>
