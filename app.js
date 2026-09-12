@@ -42,7 +42,7 @@ const googleLoginBtn = document.getElementById("googleLoginBtn");
 // for a clear error message — the real enforcement is in your Firestore
 // security rules (see README), since a client-side check alone can't stop
 // someone from writing to the database directly.
-const ADMIN_EMAIL = "neilfrancis.espinosa@cvsu.edu.ph";
+const ADMIN_EMAIL = "neilfrancisespinosa@gmail.com";
 
 const recordModal = document.getElementById("recordModal");
 const recordForm = document.getElementById("recordForm");
@@ -138,6 +138,7 @@ loginForm.addEventListener("submit", async (e) => {
     closeModal(loginModal);
     showToast("Logged in as admin.");
   } catch (err) {
+    console.error("Email/password login failed:", err.code, err.message);
     loginError.textContent = "Couldn't log in — check your email and password.";
     loginError.classList.add("active");
   }
