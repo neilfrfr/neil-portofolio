@@ -2,16 +2,13 @@
 
 A static portfolio site with a live, editable directory of Activities, Short Quizzes, and Long Quizzes. Anyone can view and open the files; only you (logged in) can add, edit, or delete entries.
 
-**Stack:** plain HTML/CSS/JS + Firebase (Auth, Firestore, Storage) + GitHub Pages. No server to run — everything runs on Firebase's free "Spark" tier.
+**Stack:** plain HTML/CSS/JS + Firebase (Auth + Firestore, for login and data) + Cloudinary (for file uploads) + GitHub Pages. Every piece here has a free tier that does **not** require a credit card.
 
 ---
 
-## 1. Create your Firebase project
+## 1. Firebase project (login + data)
 
-1. Go to [console.firebase.google.com](https://console.firebase.google.com) and click **Add project**. Name it anything (e.g. `neil-portfolio`). You can skip Google Analytics.
-2. Click the **web icon (`</>`)** on the project overview page to register a web app. Give it a nickname — no need to set up Firebase Hosting.
-3. Firebase shows you a `firebaseConfig` object. Copy it.
-4. Open `firebase-config.js` in this project and paste your values in, replacing the placeholders.
+Your Firebase config is already filled in for you in `firebase-config.js` (project `neil-portfolio-a1a16`). If you ever need to re-copy it: **Project Settings > General > Your apps > SDK setup and configuration** — just skip the `storageBucket` and `measurementId` fields, since this project doesn't use Firebase Storage or Analytics.
 
 ## 2. Turn on Authentication (so only you can edit)
 
@@ -36,28 +33,25 @@ service cloud.firestore {
 }
 ```
 
-Anyone can view the directory, but only a signed-in user (you) can add/edit/delete. Click **Publish**.
+Anyone can view the directory; only a signed-in user (you) can add/edit/delete. Click **Publish**.
 
-## 4. Turn on Storage (stores your uploaded PDFs/images)
+## 4. Create a Cloudinary account (file uploads — no card needed)
 
-1. **Build > Storage > Get started**. Accept the default settings.
-2. Go to the **Rules** tab and replace the contents with:
+Cloudinary's free plan (25 credits/month ≈ 25GB of storage or bandwidth) doesn't ask for a credit card, and it lets your browser upload files directly without a backend server.
 
-```
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /uploads/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-  }
-}
-```
+1. Go to [cloudinary.com](https://cloudinary.com) and sign up (email, Google, or GitHub — no card).
+2. On your Console **Dashboard**, copy your **Cloud name**.
+3. Go to **Settings (gear icon) > Upload > Upload presets > Add upload preset**.
+   - Set **Signing Mode** to **Unsigned** (this is what lets the browser upload without exposing any secret key).
+   - Optionally, under **Folder**, type `portfolio-uploads` to keep things tidy.
+   - Under **Allowed formats**, restrict to `pdf,doc,docx,jpg,jpeg,png,webp` so only expected file types can be uploaded.
+   - Save, and copy the **preset name**.
+4. Open `cloudinary-config.js` in this project and paste in your cloud name and preset name.
+5. **Important for PDFs:** Cloudinary's free plan blocks public *delivery* of PDF files by default (an anti-abuse measure) — uploads still work, but the link would show an error until you turn this on. Go to **Settings > Security**, find **"PDF and ZIP files delivery"**, and enable **Allow delivery of PDF and ZIP files**. Save. (DOC/DOCX files aren't affected by this restriction and work immediately.)
 
-Click **Publish**.
+These two config values are meant to be public in client-side code — the unsigned preset's restrictions (folder, file types) are what keeps it safe, not secrecy.
 
-> **On the billing prompt:** Firebase Storage now requires linking a billing account (the "Blaze" pay-as-you-go plan) even to use it within the free quota — Google added this as a spam-prevention measure. You won't be charged unless you go past the free quota (5GB storage, 1GB/day downloads — very hard to hit with quiz files for a single portfolio). If you want a safety net, set a **budget alert** in Google Cloud Console under Billing so you'd be notified long before anything could cost money.
+> **Note:** when you replace a file on an existing item, the old file is left in your Cloudinary media library rather than deleted (deleting Cloudinary assets from the browser needs a signed request, which would mean exposing a secret key). For a personal portfolio's worth of files this is well within the free tier — if it ever bothers you, you can delete unused files manually from the Cloudinary Media Library.
 
 ## 5. Test it locally
 
@@ -73,18 +67,16 @@ Visit `http://localhost:8000`, click **Admin** in the nav, log in with the accou
 ## 6. Deploy to GitHub Pages
 
 1. Create a new GitHub repository (e.g. `portfolio`).
-2. Push these files to the repository root: `index.html`, `style.css`, `app.js`, `firebase-config.js`.
+2. Push these files to the repository root: `index.html`, `style.css`, `app.js`, `firebase-config.js`, `cloudinary-config.js`.
 3. In the repo, go to **Settings > Pages**.
 4. Under **Source**, choose **Deploy from a branch**, pick `main` and `/ (root)`, then **Save**.
 5. After a minute, GitHub gives you a live URL like `https://yourusername.github.io/portfolio/`.
-
-Your `firebase-config.js` values (API key, project ID, etc.) are safe to be public in a client-side app like this — Firebase's actual security comes from the Firestore/Storage rules you set above, not from hiding these values.
 
 ## How it works day-to-day
 
 - **Visitors** see the site normally and can click any item with a file icon to open the PDF/image in a new tab.
 - **You** click **Admin** in the top nav, log in, and every tab gets an **+ Add** button plus edit (✎) and delete (🗑) icons on each item.
-- Editing an item without choosing a new file keeps the existing file attached; choosing a new file replaces it.
+- Editing an item without choosing a new file keeps the existing file attached; choosing a new file uploads and swaps in the new one.
 - Changes show up instantly for anyone viewing the site (it uses a live database connection), no page refresh needed.
 
 ## Extending it later
