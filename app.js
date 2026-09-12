@@ -121,6 +121,7 @@ googleLoginBtn.addEventListener("click", async () => {
     closeModal(loginModal);
     showToast("Logged in as admin.");
   } catch (err) {
+    console.error("Google login failed:", err.code, err.message);
     if (err.code !== "auth/popup-closed-by-user") {
       loginError.textContent = "Couldn't sign in with Google.";
       loginError.classList.add("active");
