@@ -20,4 +20,3 @@ export const firebaseConfig = {
   measurementId: "G-8RZ1XCV66P"
 
 };
-
