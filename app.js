@@ -186,7 +186,8 @@ function detectFileType(fileName, url) {
 const CATEGORY_LABELS = {
   activities: "Activity",
   "short-quiz": "Short Quiz",
-  "long-quiz": "Long Quiz"
+  "long-quiz": "Long Quiz",
+  exams: "Exam"
 };
 
 // ================================================================
@@ -222,7 +223,7 @@ if (document.querySelector(".record-list")) {
 }
 
 function renderAllTabs() {
-  ["activities", "short-quiz", "long-quiz"].forEach(renderCategory);
+  ["activities", "short-quiz", "long-quiz", "exams"].forEach(renderCategory);
 }
 function renderActiveTab() {
   renderCategory(activeCategory);
@@ -231,7 +232,8 @@ function renderActiveTab() {
 const EMPTY_COPY = {
   activities: "No activities yet. Uploaded activities will appear here.",
   "short-quiz": "No short quizzes yet. Your uploaded quizzes will appear here.",
-  "long-quiz": "No long quizzes yet. Your uploaded quizzes will appear here."
+  "long-quiz": "No long quizzes yet. Your uploaded quizzes will appear here.",
+  exams: "No exams yet. Uploaded exams will appear here."
 };
 
 function renderCategory(category) {

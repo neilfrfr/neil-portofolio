@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#08090b">
 <title>Documents — Neil Francis Espinosa</title>
-<meta name="description" content="Academic directory of activities, short quizzes, and long quizzes for Neil Francis Espinosa's Computer Science coursework, viewable directly in the browser.">
+<meta name="description" content="Academic directory of activities, short quizzes, long quizzes, and exams for Neil Francis Espinosa's Computer Science coursework, viewable directly in the browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -44,6 +44,7 @@
       <button class="tab-btn active" data-category="activities" type="button">Activities</button>
       <button class="tab-btn" data-category="short-quiz" type="button">Short quizzes</button>
       <button class="tab-btn" data-category="long-quiz" type="button">Long quizzes</button>
+      <button class="tab-btn" data-category="exams" type="button">Exams</button>
     </div>
 
     <div class="tab-content active" data-category="activities">
@@ -81,6 +82,18 @@
         <button class="btn btn-small admin-only add-record-btn" type="button" data-category="long-quiz" style="display:none;">+ Add long quiz</button>
       </div>
       <div class="record-list" data-list="long-quiz">
+        <p class="loading-state">Loading…</p>
+      </div>
+    </div>
+    <div class="tab-content" data-category="exams">
+      <div class="tab-content-header">
+        <div>
+          <h3>Exams</h3>
+          <p>Midterms, finals, and other examination documents.</p>
+        </div>
+        <button class="btn btn-small admin-only add-record-btn" type="button" data-category="exams" style="display:none;">+ Add exam</button>
+      </div>
+      <div class="record-list" data-list="exams">
         <p class="loading-state">Loading…</p>
       </div>
     </div>
